@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Bell } from "lucide-react";
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { VertexLogo } from "@/components/ui/navigation";
+import { Button } from "@/components/ui/button";
 
 export interface HomeHeaderProps {
   activeTab?: "courses" | "my-learning";
@@ -44,26 +45,43 @@ export function HomeHeader({ activeTab = "courses" }: HomeHeaderProps) {
           </nav>
         </div>
 
-        {/* Right: Notifications & User Avatar */}
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="p-2 text-[#0F172A] hover:text-[#F97316] hover:bg-[#F1F5F9] rounded-full transition-colors relative"
-          >
-            <Bell className="w-5 h-5 stroke-[1.8]" />
-          </button>
+        {/* Right: Auth Controls & User State */}
+        <div className="flex items-center gap-3">
+          <Show when="signed-out">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  className="text-sm font-medium text-[#64748B] hover:text-[#0F172A] px-3 py-2 transition-colors cursor-pointer"
+                >
+                  Sign in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="rounded-full px-4 h-9 cursor-pointer"
+                >
+                  Sign up
+                </Button>
+              </SignUpButton>
+            </div>
+          </Show>
 
-          {/* User Avatar */}
-          <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#E2E8F0] shadow-xs shrink-0 bg-[#F1F5F9]">
-            <Image
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120"
-              alt="User profile"
-              width={36}
-              height={36}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <Show when="signed-in">
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                aria-label="Notifications"
+                className="p-2 text-[#0F172A] hover:text-[#F97316] hover:bg-[#F1F5F9] rounded-full transition-colors relative cursor-pointer"
+              >
+                <Bell className="w-5 h-5 stroke-[1.8]" />
+              </button>
+
+              <UserButton />
+            </div>
+          </Show>
         </div>
       </div>
     </header>
