@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import { defineType, defineField, defineArrayMember } from 'sanity'
 import { UserIcon } from '@sanity/icons'
 
 export const instructor = defineType({
@@ -42,28 +42,35 @@ export const instructor = defineType({
     }),
     defineField({
       name: 'expertise',
-      title: 'Expertise / Role',
-      type: 'string',
-      description: 'e.g. "Staff Frontend Engineer & Open Source Contributor"',
+      title: 'Expertise / Skills',
+      type: 'array',
+      description: 'Key areas of technical expertise and skills (e.g. "React", "TypeScript").',
+      of: [defineArrayMember({ type: 'string' })],
+      options: {
+        layout: 'tags',
+      },
     }),
     defineField({
       name: 'bio',
       title: 'Bio',
-      type: 'text',
-      rows: 4,
+      type: 'blockContent',
       description: 'Instructor background, experience, and teaching focus.',
     }),
   ],
   preview: {
     select: {
       title: 'name',
-      subtitle: 'expertise',
+      expertise: 'expertise',
       media: 'photo',
     },
-    prepare({ title, subtitle, media }) {
+    prepare({ title, expertise, media }) {
+      const subtitle = Array.isArray(expertise)
+        ? expertise.join(' • ')
+        : (expertise || 'Instructor')
+
       return {
         title: title || 'Unnamed Instructor',
-        subtitle: subtitle || 'Instructor',
+        subtitle,
         media,
       }
     },
