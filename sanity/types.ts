@@ -61,8 +61,8 @@ export interface Instructor {
     current: string
   }
   photo?: SanityImage
-  expertise?: string
-  bio?: string
+  expertise?: string[]
+  bio?: PortableTextBlock[]
   courses?: CourseCardData[]
 }
 
@@ -129,7 +129,7 @@ export interface CourseCardData {
     name: string
     slug: string
     photo?: SanityImage
-    expertise?: string
+    expertise?: string[]
   }
   category?: {
     _id: string
@@ -156,8 +156,8 @@ export interface CourseDetailData {
     name: string
     slug: string
     photo?: SanityImage
-    expertise?: string
-    bio?: string
+    expertise?: string[]
+    bio?: PortableTextBlock[]
   }
   category?: {
     _id: string
@@ -210,7 +210,7 @@ export interface LessonPageData {
       name: string
       slug: string
       photo?: SanityImage
-      expertise?: string
+      expertise?: string[]
     }
     modules: {
       _key: string
