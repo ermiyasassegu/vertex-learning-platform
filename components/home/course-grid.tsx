@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowRight, BarChart2, Clock, FileText } from "lucide-react";
+import { formatDuration } from "@/sanity/lib/helpers";
+import type { CourseCardData } from "@/sanity/types";
 
 // Next.js Logo Component
 function NextJsIcon() {
@@ -72,47 +74,74 @@ function TypeScriptIcon() {
   );
 }
 
-interface CourseItem {
-  id: string;
-  title: string;
-  description: string;
-  level: string;
-  duration: string;
-  modules: string;
-  icon: React.ReactNode;
+function DefaultCourseIcon({ title }: { title: string }) {
+  const initial = (title || "C").charAt(0).toUpperCase();
+  return (
+    <div className="w-12 h-12 rounded-[12px] bg-[#0F172A] text-white flex items-center justify-center font-bold text-xl shadow-sm shrink-0 select-none">
+      <span>{initial}</span>
+    </div>
+  );
 }
 
-const COURSES: CourseItem[] = [
-  {
-    id: "nextjs",
-    title: "Next.js for Production",
-    description: "Build scalable, high-performance web applications with Next.js.",
-    level: "Intermediate",
-    duration: "18h 24m",
-    modules: "12 modules",
-    icon: <NextJsIcon />,
-  },
-  {
-    id: "docker",
-    title: "Docker Essentials",
-    description: "Containerize applications and streamline your development workflow.",
-    level: "Beginner",
-    duration: "10h 12m",
-    modules: "8 modules",
-    icon: <DockerIcon />,
-  },
-  {
-    id: "typescript",
-    title: "TypeScript Deep Dive",
-    description: "Go beyond the basics and write safer, more expressive code.",
-    level: "Intermediate",
-    duration: "14h 36m",
-    modules: "10 modules",
-    icon: <TypeScriptIcon />,
-  },
-];
+function getCourseIcon(slug: string = "", title: string = "") {
+  const s = slug.toLowerCase();
+  const t = title.toLowerCase();
 
-export function CourseGrid() {
+  if (s.includes("next") || t.includes("next.js")) {
+    return <NextJsIcon />;
+  }
+  if (s.includes("docker") || t.includes("docker") || s.includes("devops") || t.includes("kubernetes")) {
+    return <DockerIcon />;
+  }
+  if (s.includes("typescript") || t.includes("typescript")) {
+    return <TypeScriptIcon />;
+  }
+  return <DefaultCourseIcon title={title} />;
+}
+
+function capitalize(str?: string): string {
+  if (!str) return "Intermediate";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export interface CourseGridProps {
+  courses?: CourseCardData[];
+}
+
+export function CourseGrid({ courses }: CourseGridProps) {
+  // If courses fetched from Sanity, prioritize the 3 featured showcase courses
+  // (Next.js, Docker, TypeScript) matching the home page UI design exactly
+  const displayCourses = React.useMemo(() => {
+    if (!courses || courses.length === 0) {
+      return [];
+    }
+
+    const nextCourse =
+      courses.find((c) => c.slug === "nextjs-for-production") ||
+      courses.find((c) => c.slug.includes("next"));
+    const dockerCourse =
+      courses.find((c) => c.slug === "docker-essentials") ||
+      courses.find((c) => c.slug.includes("docker"));
+    const tsCourse =
+      courses.find((c) => c.slug === "typescript-deep-dive") ||
+      courses.find((c) => c.slug.includes("typescript"));
+
+    const ordered: CourseCardData[] = [];
+    if (nextCourse) ordered.push(nextCourse);
+    if (dockerCourse) ordered.push(dockerCourse);
+    if (tsCourse) ordered.push(tsCourse);
+
+    // If any are missing, fill from remaining courses
+    for (const c of courses) {
+      if (ordered.length >= 3) break;
+      if (!ordered.some((o) => o._id === c._id)) {
+        ordered.push(c);
+      }
+    }
+
+    return ordered;
+  }, [courses]);
+
   return (
     <section id="courses" className="w-full pt-4 pb-12 px-4 sm:px-8">
       <div className="max-w-[1440px] mx-auto space-y-6">
@@ -123,7 +152,7 @@ export function CourseGrid() {
             All Courses
           </h2>
           <Link
-            href="#"
+            href="/courses"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-[#F97316] hover:text-[#EA580C] transition-colors"
           >
             <span>View all courses</span>
@@ -133,14 +162,15 @@ export function CourseGrid() {
 
         {/* Course Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {COURSES.map((course) => (
-            <div
-              key={course.id}
-              className="group relative flex flex-col justify-between bg-white border border-[#E2E8F0] rounded-[16px] p-6 sm:p-7 shadow-sm hover:shadow-md hover:border-[#CBD5E1] transition-all duration-200"
+          {displayCourses.map((course) => (
+            <Link
+              key={course._id || course.slug}
+              href={`/courses/${course.slug}`}
+              className="group relative flex flex-col justify-between bg-white border border-[#E2E8F0] rounded-[16px] p-6 sm:p-7 shadow-sm hover:shadow-md hover:border-[#CBD5E1] transition-all duration-200 cursor-pointer"
             >
               <div>
                 {/* Course Icon */}
-                <div className="mb-6">{course.icon}</div>
+                <div className="mb-6">{getCourseIcon(course.slug, course.title)}</div>
 
                 {/* Course Title */}
                 <h3 className="font-serif text-xl sm:text-[22px] font-bold text-[#0F172A] group-hover:text-[#F97316] transition-colors mb-3 leading-snug">
@@ -149,26 +179,26 @@ export function CourseGrid() {
 
                 {/* Course Description */}
                 <p className="text-sm text-[#64748B] leading-relaxed mb-8">
-                  {course.description}
+                  {course.summary}
                 </p>
               </div>
 
               {/* Card Footer Metadata */}
               <div className="flex items-center justify-between text-xs text-[#64748B] pt-4 border-t border-[#F1F5F9] font-normal">
                 <div className="flex items-center gap-1.5">
-                  <BarChart2 className="w-3.5 h-3.5 stroke-[1.8] shrink-0" />
-                  <span>{course.level}</span>
+                  <BarChart2 className="w-3.5 h-3.5 stroke-[1.8] shrink-0 text-[#94A3B8]" />
+                  <span>{capitalize(course.level)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 stroke-[1.8] shrink-0" />
-                  <span>{course.duration}</span>
+                  <Clock className="w-3.5 h-3.5 stroke-[1.8] shrink-0 text-[#94A3B8]" />
+                  <span>{formatDuration(course.totalDurationSeconds)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5 stroke-[1.8] shrink-0" />
-                  <span>{course.modules}</span>
+                  <FileText className="w-3.5 h-3.5 stroke-[1.8] shrink-0 text-[#94A3B8]" />
+                  <span>{course.moduleCount || 0} modules</span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

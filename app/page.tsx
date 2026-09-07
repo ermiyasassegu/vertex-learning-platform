@@ -1,11 +1,14 @@
 import * as React from "react";
+import { getCourses } from "@/sanity/lib/fetch";
 import { HomeHeader } from "@/components/home/home-header";
 import { HeroSection } from "@/components/home/hero-section";
 import { CourseGrid } from "@/components/home/course-grid";
 import { WeeklyBanner } from "@/components/home/weekly-banner";
 import { DecorativeFooter } from "@/components/home/decorative-footer";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const courses = await getCourses();
+
   return (
     <div className="min-h-screen bg-[#FAFAFC] bg-diagonal-hatch flex flex-col items-center">
       {/* Central content canvas */}
@@ -21,7 +24,7 @@ export default function HomePage() {
             <HeroSection />
 
             {/* Courses Catalog Grid */}
-            <CourseGrid />
+            <CourseGrid courses={courses} />
           </div>
 
           {/* Bottom Elements */}
