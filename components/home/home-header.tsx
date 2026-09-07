@@ -23,7 +23,7 @@ export function HomeHeader({ activeTab = "courses" }: HomeHeaderProps) {
 
           <nav className="hidden sm:flex items-center gap-8 text-sm font-medium">
             <Link
-              href="#"
+              href="/courses"
               className={`transition-colors ${
                 activeTab === "courses"
                   ? "text-[#0F172A] font-semibold"

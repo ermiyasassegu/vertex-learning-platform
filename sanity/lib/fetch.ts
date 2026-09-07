@@ -64,7 +64,41 @@ export async function getLessonBySlug(slug: string): Promise<LessonPageData | nu
 
   if (!data) return null
 
-  const rawLesson = data as any
+  interface RawLessonQueryResult {
+    _id: string
+    title: string
+    slug: string
+    videoUrl: string
+    thumbnail?: CourseDetailData['coverImage']
+    duration?: number
+    isFreePreview?: boolean
+    studentCount?: number
+    notes?: LessonPageData['lesson']['notes']
+    keyPoints?: string[]
+    proTip?: string
+    resources?: LessonPageData['lesson']['resources']
+    course?: {
+      _id: string
+      title: string
+      slug: string
+      coverImage?: CourseDetailData['coverImage']
+      instructor?: CourseDetailData['instructor']
+      modules?: {
+        _key: string
+        title: string
+        summary?: string
+        lessons?: {
+          _id: string
+          title: string
+          slug: string
+          duration?: number
+          isFreePreview?: boolean
+        }[]
+      }[]
+    }
+  }
+
+  const rawLesson = data as unknown as RawLessonQueryResult
   const rawCourse = rawLesson.course
 
   if (!rawCourse) {
@@ -109,8 +143,8 @@ export async function getLessonBySlug(slug: string): Promise<LessonPageData | nu
   }
 
   const flatLessons: FlatLesson[] = []
-  const formattedModules = (rawCourse.modules || []).map((mod: any, mIdx: number) => {
-    const formattedLessons = (mod.lessons || []).map((les: any, lIdx: number) => {
+  const formattedModules = (rawCourse.modules || []).map((mod, mIdx: number) => {
+    const formattedLessons = (mod.lessons || []).map((les, lIdx: number) => {
       const lessonLabel = deriveLessonLabel(mIdx, lIdx)
       const item: FlatLesson = {
         _id: les._id,
