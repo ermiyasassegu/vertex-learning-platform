@@ -8,6 +8,7 @@ import { CourseHero } from "@/components/course/course-hero";
 import { CourseLearningOutcomes } from "@/components/course/course-learning-outcomes";
 import { CourseCurriculum } from "@/components/course/course-curriculum";
 import { CourseProgressBar } from "@/components/course/course-progress-bar";
+import { TrackCourseView } from "@/components/analytics/track-course-view";
 import { DecorativeFooter } from "@/components/home/decorative-footer";
 
 interface CoursePageProps {
@@ -64,6 +65,14 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
         
         {/* Top Header */}
         <HomeHeader activeTab="courses" />
+
+        {/* Product analytics: course viewed */}
+        <TrackCourseView
+          slug={course.slug}
+          title={course.title}
+          category={course.category?.title}
+          level={course.level}
+        />
 
         {/* Main Content Area */}
         <main className="flex-1 px-4 sm:px-8 lg:px-12 flex flex-col justify-between">

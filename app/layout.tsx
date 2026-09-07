@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { PostHogIdentify } from "@/components/analytics/posthog-identify";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable} antialiased`}>
       <body className="min-h-screen bg-[#FAFAFC] text-[#0F172A]">
         <ClerkProvider>
+          <PostHogIdentify />
           {children}
         </ClerkProvider>
       </body>
