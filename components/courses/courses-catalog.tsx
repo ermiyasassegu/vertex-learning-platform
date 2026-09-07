@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BarChart2, Clock, FileText, Sparkles, Database, Shield, Layers, Cpu } from "lucide-react";
 import { formatDuration } from "@/sanity/lib/helpers";
 import type { CourseCardData, Category } from "@/sanity/types";
+import posthog from "posthog-js";
 
 // Next.js Logo Component
 function NextJsIcon() {
@@ -229,7 +230,10 @@ export function CoursesCatalog({ courses = [], categories = [] }: CoursesCatalog
       <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-4 scrollbar-none">
         <button
           type="button"
-          onClick={() => setSelectedCategory("all")}
+          onClick={() => {
+            setSelectedCategory("all");
+            posthog.capture("course_category_filtered", { category: "all" });
+          }}
           className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-150 shrink-0 cursor-pointer ${
             selectedCategory === "all"
               ? "bg-[#0F172A] text-white shadow-sm"
@@ -248,7 +252,11 @@ export function CoursesCatalog({ courses = [], categories = [] }: CoursesCatalog
             <button
               key={cat._id}
               type="button"
-              onClick={() => setSelectedCategory(isSelected ? "all" : cat.title)}
+              onClick={() => {
+                const nextCategory = isSelected ? "all" : cat.title;
+                setSelectedCategory(nextCategory);
+                posthog.capture("course_category_filtered", { category: nextCategory });
+              }}
               className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-150 shrink-0 cursor-pointer ${
                 isSelected
                   ? "bg-[#0F172A] text-white shadow-sm"
@@ -268,6 +276,14 @@ export function CoursesCatalog({ courses = [], categories = [] }: CoursesCatalog
             <Link
               key={course._id || course.slug}
               href={`/courses/${course.slug}`}
+              onClick={() =>
+                posthog.capture("course_catalog_card_clicked", {
+                  course_slug: course.slug,
+                  course_title: course.title,
+                  course_level: course.level,
+                  selected_category: selectedCategory,
+                })
+              }
               className="group relative flex flex-col justify-between bg-white border border-[#E2E8F0] rounded-[16px] p-6 sm:p-7 shadow-sm hover:shadow-md hover:border-[#CBD5E1] transition-all duration-200 cursor-pointer"
             >
               <div>

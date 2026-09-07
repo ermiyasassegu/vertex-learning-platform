@@ -6,6 +6,7 @@ import { Bell } from "lucide-react";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { VertexLogo } from "@/components/ui/navigation";
 import { Button } from "@/components/ui/button";
+import posthog from "posthog-js";
 
 export interface HomeHeaderProps {
   activeTab?: "courses" | "my-learning";
@@ -52,6 +53,7 @@ export function HomeHeader({ activeTab = "courses" }: HomeHeaderProps) {
               <SignInButton mode="modal">
                 <button
                   type="button"
+                  onClick={() => posthog.capture("sign_in_clicked")}
                   className="text-sm font-medium text-[#64748B] hover:text-[#0F172A] px-3 py-2 transition-colors cursor-pointer"
                 >
                   Sign in
@@ -61,6 +63,7 @@ export function HomeHeader({ activeTab = "courses" }: HomeHeaderProps) {
                 <Button
                   variant="primary"
                   size="sm"
+                  onClick={() => posthog.capture("sign_up_clicked")}
                   className="rounded-full px-4 h-9 cursor-pointer"
                 >
                   Sign up
