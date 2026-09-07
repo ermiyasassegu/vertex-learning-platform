@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronDown, PlayCircle, Lock } from "lucide-react";
 import { formatDuration } from "@/sanity/lib/helpers";
 import type { CourseDetailData } from "@/sanity/types";
+import posthog from "posthog-js";
 
 interface CourseCurriculumProps {
   course: CourseDetailData;
@@ -19,11 +20,19 @@ export function CourseCurriculum({ course }: CourseCurriculumProps) {
   const hasMore = modules.length > initialLimit;
   const visibleModules = showAll ? modules : modules.slice(0, initialLimit);
 
-  const toggleModule = (index: number) => {
+  const toggleModule = (index: number, moduleTitle: string) => {
+    const willOpen = !openModules[index];
     setOpenModules((prev) => ({
       ...prev,
-      [index]: !prev[index],
+      [index]: willOpen,
     }));
+    if (willOpen) {
+      posthog.capture("course_module_expanded", {
+        course_slug: course.slug,
+        module_title: moduleTitle,
+        module_index: index,
+      });
+    }
   };
 
   return (
@@ -57,7 +66,7 @@ export function CourseCurriculum({ course }: CourseCurriculumProps) {
               {/* Module Header Bar */}
               <button
                 type="button"
-                onClick={() => toggleModule(mIdx)}
+                onClick={() => toggleModule(mIdx, mod.title)}
                 className="w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors cursor-pointer"
                 aria-expanded={isOpen}
               >
@@ -115,6 +124,15 @@ export function CourseCurriculum({ course }: CourseCurriculumProps) {
                           )}
                           <Link
                             href={lessonLink}
+                            onClick={() =>
+                              posthog.capture("lesson_clicked", {
+                                course_slug: course.slug,
+                                lesson_title: lesson.title,
+                                lesson_slug: lesson.slug,
+                                module_title: mod.title,
+                                is_free_preview: lesson.isFreePreview ?? false,
+                              })
+                            }
                             className="text-xs sm:text-sm font-medium text-[#0F172A] hover:text-[#D96338] transition-colors truncate"
                           >
                             <span>{`${mIdx + 1}.${lIdx + 1} `}</span>

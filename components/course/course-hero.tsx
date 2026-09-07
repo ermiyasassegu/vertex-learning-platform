@@ -1,9 +1,12 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
 import { BarChart2, Clock, FileText, Users, ArrowRight, Bookmark } from "lucide-react";
 import { CourseCoverPoster } from "./course-cover-poster";
 import { formatDuration } from "@/sanity/lib/helpers";
 import type { CourseDetailData } from "@/sanity/types";
+import posthog from "posthog-js";
 
 interface CourseHeroProps {
   course: CourseDetailData;
@@ -94,6 +97,12 @@ export function CourseHero({ course }: CourseHeroProps) {
           <div className="flex items-center gap-4 pt-2">
             <Link
               href={continueLink}
+              onClick={() =>
+                posthog.capture("course_continue_learning_clicked", {
+                  course_slug: course.slug,
+                  course_title: course.title,
+                })
+              }
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#D96338] hover:bg-[#C2542D] text-white font-medium text-sm sm:text-base shadow-sm hover:shadow transition-all duration-150 active:scale-[0.99]"
             >
               <span>Continue Learning</span>
@@ -102,6 +111,12 @@ export function CourseHero({ course }: CourseHeroProps) {
 
             <button
               type="button"
+              onClick={() =>
+                posthog.capture("course_bookmarked", {
+                  course_slug: course.slug,
+                  course_title: course.title,
+                })
+              }
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white hover:bg-slate-50 border border-[#E2E8F0] hover:border-[#CBD5E1] text-[#0F172A] font-medium text-sm sm:text-base shadow-2xs transition-all duration-150 cursor-pointer"
             >
               <Bookmark className="w-4 h-4 stroke-[1.8] text-[#64748B]" />

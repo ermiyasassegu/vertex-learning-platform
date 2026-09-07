@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Search, ArrowRight } from "lucide-react";
+import posthog from "posthog-js";
 
 export function HeroSection() {
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -45,6 +46,7 @@ export function HeroSection() {
         <div className="pt-1">
           <a
             href="#courses"
+            onClick={() => posthog.capture("hero_cta_clicked")}
             className="inline-flex items-center justify-center gap-2 bg-[#F97316] hover:bg-[#EA580C] text-white text-base font-medium px-7 py-3 rounded-[10px] shadow-sm hover:shadow transition-all duration-150 active:scale-[0.98]"
           >
             <span>Explore Courses</span>
@@ -64,6 +66,14 @@ export function HeroSection() {
               type="text"
               placeholder="Ask anything about your learning..."
               className="w-full bg-transparent text-sm sm:text-base text-[#0F172A] placeholder-[#94A3B8] focus:outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const query = (e.target as HTMLInputElement).value.trim();
+                  if (query) {
+                    posthog.capture("search_submitted", { query_length: query.length });
+                  }
+                }
+              }}
             />
             <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
               <kbd className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-medium font-mono text-[#64748B] bg-[#FAFAFC] border border-[#E2E8F0] rounded-[6px] shadow-2xs select-none">

@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import posthog from "posthog-js";
 
 interface CourseProgressBarProps {
   progressPercentage?: number;
@@ -45,6 +46,11 @@ export function CourseProgressBar({
         <div className="shrink-0">
           <Link
             href={continueLink}
+            onClick={() =>
+              posthog.capture("course_progress_continue_clicked", {
+                progress_percentage: progressPercentage,
+              })
+            }
             className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-[#D96338] hover:bg-[#C2542D] text-white font-medium text-sm sm:text-base shadow-sm hover:shadow transition-all duration-150 active:scale-[0.99]"
           >
             <span>Continue Learning</span>

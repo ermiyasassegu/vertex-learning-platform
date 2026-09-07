@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, BarChart2, Clock, FileText } from "lucide-react";
 import { formatDuration } from "@/sanity/lib/helpers";
 import type { CourseCardData } from "@/sanity/types";
+import posthog from "posthog-js";
 
 // Next.js Logo Component
 function NextJsIcon() {
@@ -166,6 +167,13 @@ export function CourseGrid({ courses }: CourseGridProps) {
             <Link
               key={course._id || course.slug}
               href={`/courses/${course.slug}`}
+              onClick={() =>
+                posthog.capture("course_card_clicked", {
+                  course_slug: course.slug,
+                  course_title: course.title,
+                  course_level: course.level,
+                })
+              }
               className="group relative flex flex-col justify-between bg-white border border-[#E2E8F0] rounded-[16px] p-6 sm:p-7 shadow-sm hover:shadow-md hover:border-[#CBD5E1] transition-all duration-200 cursor-pointer"
             >
               <div>
