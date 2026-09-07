@@ -203,6 +203,17 @@ export function CoursesCatalog({ courses = [], categories = [] }: CoursesCatalog
     });
   }, [courses, selectedCategory]);
 
+  // Product analytics: catalog viewed (top of the funnel), captured once.
+  const viewed = React.useRef(false);
+  React.useEffect(() => {
+    if (viewed.current) return;
+    viewed.current = true;
+    posthog.capture("catalog_viewed", {
+      course_count: courses.length,
+      category_count: filterCategories.length,
+    });
+  }, [courses.length, filterCategories.length]);
+
   return (
     <section className="w-full pt-4 pb-16">
       {/* Page Hero Header */}
