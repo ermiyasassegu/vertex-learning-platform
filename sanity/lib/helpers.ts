@@ -48,9 +48,17 @@ export function deriveModuleLabel(moduleIndex: number): string {
 }
 
 /**
+ * Derives a lesson number from module and lesson 0-based array indices
+ * (e.g., moduleIndex 4, lessonIndex 0 -> "5.1").
+ */
+export function deriveLessonNumber(moduleIndex: number, lessonIndex: number): string {
+  return `${moduleIndex + 1}.${lessonIndex + 1}`
+}
+
+/**
  * Derives a human-readable lesson label from module and lesson 0-based array indices
  * (e.g., moduleIndex 4, lessonIndex 0 -> "Lesson 5.1").
  */
 export function deriveLessonLabel(moduleIndex: number, lessonIndex: number): string {
-  return `Lesson ${moduleIndex + 1}.${lessonIndex + 1}`
+  return `Lesson ${deriveLessonNumber(moduleIndex, lessonIndex)}`
 }
